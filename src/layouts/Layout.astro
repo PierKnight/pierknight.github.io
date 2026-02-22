@@ -1,12 +1,26 @@
+---
+const { 
+	title = "PierKnight Website",
+	icon = "/favicon.png" 
+} = Astro.props;
+
+const path = Astro.url.pathname;
+
+function getPageIcon(): string
+{	
+	return icon
+}
+
+---
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={getPageIcon()} />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
 	<body>
 		<slot />
