@@ -4,6 +4,8 @@ const {
 	icon = "/favicon.png" 
 } = Astro.props;
 
+import background from '../assets/background.svg';
+
 const path = Astro.url.pathname;
 
 function getPageIcon(): string
@@ -23,6 +25,7 @@ function getPageIcon(): string
 		<title>{title}</title>
 	</head>
 	<body>
+		<img id="background" src={background.src} alt="" fetchpriority="high" />
 		<slot />
 	</body>
 </html>
