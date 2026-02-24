@@ -1,6 +1,3 @@
----
-import roadhog_normal from "../assets/images/roadhog_normal.gif"
----
 <div id="roadhog" class="unselectable" class:hogJumping={hogJumping}>
     <div bind:this={dialogue} class:visible={visibleDialogue}  id="hogDialog" class="undraggable"></div>
     <div class="entity" style="position: relative">    
