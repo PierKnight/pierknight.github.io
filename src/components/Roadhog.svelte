@@ -5,23 +5,19 @@
         <button class="button" on:click={onRoadhogClick}>
             <img bind:this={roadhog} draggable="false" alt="roadhog" id="roadhogImage" src={roadhog_normal.src}>
         </button>
-        <audio bind:this={roadhogAudio}></audio>
+        <audio on:playing={jump} bind:this={roadhogAudio}></audio>
     </div>
 </div>
 
 <script lang="ts">
-    import { onMount, tick } from "svelte";
+    import { onDestroy, onMount, tick } from "svelte";
     import { onRoadhogMessage, onRoadhogJump, onStopMessage } from "../assets/scripts/roadhog";
     import roadhog_normal from "../assets/images/roadhog_normal.gif"
     import { randInt } from "../assets/scripts/utils"
     
-
-    //const roadhog = document.getElementById("roadhog")!
-    //const dialogue = document.getElementById("hogDialog")!
     let roadhog : HTMLElement;
     let dialogue : HTMLElement;
     let roadhogAudio: HTMLAudioElement;
-
 
     let visibleDialogue = false
     let hogJumping = false
@@ -59,8 +55,9 @@
     })
 
 
+
     let oldMessageInterval: number | undefined;   
-    function showMessage(message: string, time: number)
+    export function showMessage(message: string, time: number)
     {
         clearTimeout(oldMessageInterval);
         jump();
@@ -83,16 +80,14 @@
 
     function playRandomAudio()
     {
-        jump()
         if (!roadhogAudio.paused) roadhogAudio.pause();
         const audioType = randInt(10)
-        if(roadhogAudio != null)
         roadhogAudio.src = `/audio/shittalking/audio${audioType}.mp3`
-        roadhogAudio?.play();
+        roadhogAudio.play();
             
     }
 
-    async function jump()
+    function jump()
     {
         hogJumping = false
         setTimeout(() => {

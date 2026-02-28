@@ -1,5 +1,5 @@
 ---
-import Main from '../components/Main.astro';
+import Main from '../components/Main.svelte';
 import Layout from '../layouts/Layout.astro';
 import GlobalStype from '../assets/GlobalStyle.astro';
 
@@ -9,7 +9,7 @@ import GlobalStype from '../assets/GlobalStyle.astro';
 
 
 <Layout title="Pierknight Website!">
-	<Main />
+	<Main client:load />
 </Layout>
 
 
