@@ -3,7 +3,7 @@
     <div class="entity" style="position: relative">    
         <!-- <span id="audioButton" class="material-symbols-outlined" data-toggle="modal" data-target="#exampleModalLong"></span> -->
         <button class="button" on:click={onRoadhogClick}>
-            <img bind:this={roadhog} draggable="false" alt="roadhog" id="roadhogImage" src={roadhog_normal.src}>
+            <img bind:this={roadhog} draggable="false" alt="roadhog" id="roadhogImage" src={roadhog_normal}>
         </button>
         <audio on:playing={jump} bind:this={roadhogAudio}></audio>
     </div>
@@ -11,9 +11,8 @@
 
 <script lang="ts">
     import { onDestroy, onMount, tick } from "svelte";
-    import { onRoadhogMessage, onRoadhogJump, onStopMessage } from "../assets/scripts/roadhog";
-    import roadhog_normal from "../assets/images/roadhog_normal.gif"
-    import { randInt } from "../assets/scripts/utils"
+    
+    import roadhog_normal from "$lib/assets/images/roadhog_normal.gif"
     
     let roadhog : HTMLElement;
     let dialogue : HTMLElement;
@@ -22,23 +21,10 @@
     let visibleDialogue = false
     let hogJumping = false
 
-    onRoadhogMessage.subscribe((message) => {
-        showMessage(message.msg, message.time)
-    })
-
-    onRoadhogJump.subscribe(() => {
-        jump()
-    })
-
-    onStopMessage.subscribe(() => {
-        stopMessage()
-    })
+   
 
     onMount(() => {
-        onRoadhogMessage.emit({
-            msg: "Welcome to my website!",
-            time: 3000
-        });
+       
         
         document.addEventListener("mouseover", (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
@@ -48,7 +34,6 @@
             if (closestMessage) {
                 const message = closestMessage.getAttribute("data-hog-message");
                 if (message) {
-                    onRoadhogMessage.emit({ msg: message, time: 1000 });
                 }
             } 
         }, false);
@@ -66,7 +51,6 @@
         visibleDialogue = true
         
         oldMessageInterval = setTimeout(() => {
-            onStopMessage.emit()
         }, time);
     }
 
@@ -74,14 +58,14 @@
     function onRoadhogClick()
     {
         playRandomAudio()
-        onRoadhogJump.emit()
+        jump()
     }
     
 
     function playRandomAudio()
     {
         if (!roadhogAudio.paused) roadhogAudio.pause();
-        const audioType = randInt(10)
+        const audioType = 0
         roadhogAudio.src = `/audio/shittalking/audio${audioType}.mp3`
         roadhogAudio.play();
             
