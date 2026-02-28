@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Roadhog from "$lib/components/roadhog.svelte";
+    import Roadhog from "../components/roadhog.svelte";
     import { onMount } from "svelte";
 
     let roadhog: Roadhog
@@ -9,4 +9,10 @@
     })
 
 </script>
+
+
+<svelte:head>
+    <title>Pierknight Website!</title> 
+</svelte:head>
+
 <Roadhog bind:this={roadhog}></Roadhog>
