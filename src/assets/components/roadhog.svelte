@@ -10,9 +10,12 @@
 </div>
 
 <script lang="ts">
-    import { onDestroy, onMount, tick } from "svelte";
+    import { onMount } from "svelte";
+
+    import { asset } from '$app/paths';
+    import roadhog_normal from "$images/roadhog_normal.gif"
+    import { randInt } from "$assets/lib/utils";
     
-    import roadhog_normal from "$lib/assets/images/roadhog_normal.gif"
     
     let roadhog : HTMLElement;
     let dialogue : HTMLElement;
@@ -47,10 +50,10 @@
         clearTimeout(oldMessageInterval);
         jump();
         dialogue.textContent = message;
-        //dialogue.classList.add("visible")
         visibleDialogue = true
         
         oldMessageInterval = setTimeout(() => {
+            stopMessage()
         }, time);
     }
 
@@ -65,8 +68,8 @@
     function playRandomAudio()
     {
         if (!roadhogAudio.paused) roadhogAudio.pause();
-        const audioType = 0
-        roadhogAudio.src = `/audio/shittalking/audio${audioType}.mp3`
+        const audioType = randInt(10)
+        roadhogAudio.src = asset(`/audio/shittalking/audio${audioType}.mp3`)
         roadhogAudio.play();
             
     }
