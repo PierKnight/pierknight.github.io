@@ -1,9 +1,11 @@
 <script lang="ts">
     import Roadhog from "$components/roadhog.svelte";
+    import favicon from "$assets/favicon.png"
     import { onMount } from "svelte";
     
 
     let roadhog: Roadhog
+    let music: HTMLVideoElement
 
     onMount(() => {
         roadhog.showMessage("Welcome to my website!", 3000)
@@ -16,6 +18,13 @@
     <title>Pierknight Website!</title> 
 </svelte:head>
 
-<Roadhog bind:this={roadhog}></Roadhog>
 
+<img src={favicon} alt="website icon">
+
+<Roadhog bind:this={roadhog} useVolume={true}></Roadhog>
+
+
+<style>
+    
+</style>
 

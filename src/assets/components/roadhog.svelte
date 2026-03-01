@@ -1,4 +1,4 @@
-<div id="roadhog" class="unselectable" class:hogJumping={hogJumping}>
+<div id="roadhog" style="transform: translate(0px, {hogHeight}px);" class="unselectable" class:hogJumping={hogJumping}>
     <div bind:this={dialogue} class:visible={visibleDialogue}  id="hogDialog" class="undraggable"></div>
     <div class="entity" style="position: relative">    
         <!-- <span id="audioButton" class="material-symbols-outlined" data-toggle="modal" data-target="#exampleModalLong"></span> -->
@@ -15,7 +15,7 @@
     import { asset } from '$app/paths';
     import roadhog_normal from "$images/roadhog_normal.gif"
     import { randInt } from "$assets/lib/utils";
-    
+
     
     let roadhog : HTMLElement;
     let dialogue : HTMLElement;
@@ -24,11 +24,19 @@
     let visibleDialogue = false
     let hogJumping = false
 
-   
+    let hogHeight: number = 0
 
+    let audioCtx: AudioContext
+    let analyser: AnalyserNode
+    
+    //options
+    export let jumpHeight: number = 0.1
+    export let useVolume: Boolean = false
+
+   
     onMount(() => {
        
-        
+        //handles roadhog messages commenting elements
         document.addEventListener("mouseover", (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (!target) return;
@@ -40,8 +48,85 @@
                 }
             } 
         }, false);
-    })
 
+        audioCtx = new AudioContext()
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        //attachSource(roadhogAudio);
+
+        /*
+        const filter = audioCtx.createBiquadFilter()
+		filter.type = "bandpass"
+		filter.frequency.value = 100
+		filter.Q.value = 1
+
+		filter2 = audioCtx.createBiquadFilter()
+		filter2.type = "peaking"
+		filter2.frequency.value = 100
+		filter2.Q.value = 1
+		filter2.gain.value = 15
+        */
+
+		audioCtx.createMediaElementSource(roadhogAudio).connect(analyser)
+		//filter2.connect(filter)
+        //filter.connect(analyser)
+		analyser.connect(audioCtx.destination)
+        
+        //analyser.connect(audioCtx.destination);
+
+
+        const roadhogPixelHeight = roadhog.offsetHeight
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if(roadhogAudio != null && !roadhogAudio.ended && !roadhogAudio.paused)
+            {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                const size = dataArray.length
+                for (let i = 0; i < size; i++) sum = Math.max(dataArray[i], sum)
+                const val = sum / 255
+                hogHeight = val * -roadhogPixelHeight * jumpHeight  
+            }
+   
+        }
+        if(useVolume)
+            animate();
+        })
+
+
+
+    function onRoadhogClick()
+    {
+
+        playRandomAudio()
+    }
+
+
+    function playRandomAudio()
+    {
+        const audioType = randInt(10)
+        playAudio(asset(`/audio/shittalking/audio${audioType}.mp3`))     
+    }
+
+    export function jump()
+    {
+        hogJumping = false
+        setTimeout(() => {
+            hogJumping = true
+        }, 0)
+        
+    }
+
+    function stopMessage()
+    {
+        hogJumping = false
+        visibleDialogue = false
+        oldMessageInterval = undefined;
+    }
 
 
     let oldMessageInterval: number | undefined;   
@@ -57,37 +142,12 @@
         }, time);
     }
 
-
-    function onRoadhogClick()
-    {
-        playRandomAudio()
-        jump()
-    }
-    
-
-    function playRandomAudio()
+    export function playAudio(audioSrc: string)
     {
         if (!roadhogAudio.paused) roadhogAudio.pause();
-        const audioType = randInt(10)
-        roadhogAudio.src = asset(`/audio/shittalking/audio${audioType}.mp3`)
+        audioCtx.resume()
+        roadhogAudio.src = audioSrc
         roadhogAudio.play();
-            
-    }
-
-    function jump()
-    {
-        hogJumping = false
-        setTimeout(() => {
-            hogJumping = true
-        }, 0)
-        
-    }
-
-    function stopMessage()
-    {
-        hogJumping = false
-        visibleDialogue = false
-        oldMessageInterval = undefined;
     }
 
 
