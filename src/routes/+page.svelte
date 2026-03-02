@@ -18,8 +18,10 @@
     <title>Pierknight Website!</title> 
 </svelte:head>
 
+<div class="flex">
+    <img class="" src={favicon} alt="website icon">
+</div>
 
-<img src={favicon} alt="website icon">
 
 <Roadhog bind:this={roadhog} useVolume={true}></Roadhog>
 
