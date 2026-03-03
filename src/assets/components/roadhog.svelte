@@ -5,96 +5,82 @@
         <button class="button" on:click={onRoadhogClick}>
             <img bind:this={roadhog} draggable="false" alt="roadhog" id="roadhogImage" src={roadhog_normal}>
         </button>
-        <audio on:playing={jump} bind:this={roadhogAudio}></audio>
+        <audio crossorigin="anonymous" on:playing={jump} bind:this={roadhogAudio}></audio>
     </div>
 </div>
 
 <script lang="ts">
     import { onMount } from "svelte";
-
-    import { asset } from '$app/paths';
     import roadhog_normal from "$images/roadhog_normal.gif"
     import { randInt } from "$assets/lib/utils";
+    import { loadVoiceLines, type Voiceline } from "$assets/lib/overwatchvl";
 
     
     let roadhog : HTMLElement;
     let dialogue : HTMLElement;
     let roadhogAudio: HTMLAudioElement;
 
+    //variables for animation
     let visibleDialogue = false
     let hogJumping = false
-
     let hogHeight: number = 0
 
+    //roadhog voicelines
+    let roadhogVoiceLines: Voiceline[] | null = null
+
     let audioCtx: AudioContext
-    let analyser: AnalyserNode
     
     //options
     export let jumpHeight: number = 0.1
     export let useVolume: Boolean = false
-
    
     onMount(() => {
-       
-        //handles roadhog messages commenting elements
-        document.addEventListener("mouseover", (event: MouseEvent) => {
-            const target = event.target as HTMLElement | null;
-            if (!target) return;
+            //handles roadhog messages commenting elements
+            document.addEventListener("mouseover", (event: MouseEvent) => {
+                const target = event.target as HTMLElement | null;
+                if (!target) return;
 
-            const closestMessage = target.closest<HTMLElement>("*[data-hog-message]");
-            if (closestMessage) {
-                const message = closestMessage.getAttribute("data-hog-message");
-                if (message) {
-                }
-            } 
-        }, false);
+                const closestMessage = target.closest<HTMLElement>("*[data-hog-message]");
+                if (closestMessage) {
+                    const message = closestMessage.getAttribute("data-hog-message");
+                    if (message) {
+                    }
+                } 
+            }, false);
 
-        audioCtx = new AudioContext()
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            audioCtx = new AudioContext()
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
         
-        //attachSource(roadhogAudio);
 
-        /*
-        const filter = audioCtx.createBiquadFilter()
-		filter.type = "bandpass"
-		filter.frequency.value = 100
-		filter.Q.value = 1
+            audioCtx.createMediaElementSource(roadhogAudio).connect(analyser)
 
-		filter2 = audioCtx.createBiquadFilter()
-		filter2.type = "peaking"
-		filter2.frequency.value = 100
-		filter2.Q.value = 1
-		filter2.gain.value = 15
-        */
+            analyser.connect(audioCtx.destination)
+            
+            const roadhogPixelHeight = roadhog.offsetHeight
 
-		audioCtx.createMediaElementSource(roadhogAudio).connect(analyser)
-		//filter2.connect(filter)
-        //filter.connect(analyser)
-		analyser.connect(audioCtx.destination)
-        
-        //analyser.connect(audioCtx.destination);
+            function animate() {
+                requestAnimationFrame(animate);
 
-
-        const roadhogPixelHeight = roadhog.offsetHeight
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if(roadhogAudio != null && !roadhogAudio.ended && !roadhogAudio.paused)
-            {
+            
                 analyser.getByteFrequencyData(dataArray);
                 let sum = 0;
                 const size = dataArray.length
                 for (let i = 0; i < size; i++) sum = Math.max(dataArray[i], sum)
                 const val = sum / 255
                 hogHeight = val * -roadhogPixelHeight * jumpHeight  
+                
+    
             }
-   
-        }
-        if(useVolume)
-            animate();
+            if(useVolume)
+                animate();
+
+
+            loadVoiceLines().then(voicelines =>
+                roadhogVoiceLines = voicelines
+            )
+
         })
 
 
@@ -108,8 +94,11 @@
 
     function playRandomAudio()
     {
-        const audioType = randInt(10)
-        playAudio(asset(`/audio/shittalking/audio${audioType}.mp3`))     
+        if(roadhogVoiceLines)
+        {
+            const voiceline = roadhogVoiceLines[randInt(roadhogVoiceLines.length)]
+            playAudio(voiceline.url)    
+        } 
     }
 
     export function jump()
@@ -130,10 +119,13 @@
 
 
     let oldMessageInterval: number | undefined;   
-    export function showMessage(message: string, time: number)
+    export function showMessage(message: string, time: number, shouldJump: boolean = true)
     {
         clearTimeout(oldMessageInterval);
-        jump();
+        if(shouldJump)
+        {
+            jump();
+        }
         dialogue.textContent = message;
         visibleDialogue = true
         
