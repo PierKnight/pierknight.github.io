@@ -19,11 +19,11 @@
 </svelte:head>
 
 <div class="flex">
-    <img class="" src={favicon} alt="website icon">
+    <img data-hog-message="A test about describing this image using roadhog dialogue system"  src={favicon} alt="website icon">
 </div>
 
 
-<Roadhog bind:this={roadhog} useVolume={true}></Roadhog>
+<Roadhog bind:this={roadhog}></Roadhog>
 
 
 <style>
