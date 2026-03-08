@@ -83,10 +83,6 @@
         if (shouldJump) jump();
         visibleDialogue = true;
         dialogue.textContent = message;
-
-        const { chars } = splitText(dialogue, { chars: true });
-        animate(chars, { y: ['0rem', '-1rem', '0rem'], loop: true, autoplay: true, delay: stagger(100) });
-
         oldMessageInterval = setTimeout(() => {
             visibleDialogue = false;
         }, time);
@@ -178,6 +174,7 @@
         min-width: 130px;
         max-width: 220px;
         z-index: 500;
+        color: black;
     }
 
     /* --- Button & Image --- */
